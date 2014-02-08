@@ -76,7 +76,7 @@ class wechat
         {
             $inputCityName = trim(substr($inputCityName, 6)); 
             $contentStr = getWeather($inputCityName);
-        }         												/*  END WEATHER  */
+        }                                   /*  END WEATHER  */
         
         
         switch ($content)
