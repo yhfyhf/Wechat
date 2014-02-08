@@ -70,18 +70,13 @@ class wechat
         if($content == "天气") $content = "weather";
         if($content == "联系") $content = "contact";
         
-        
-        
-        
-        
+
         $inputCityName = $content;                              /*  WEATHER  */
         if(substr($inputCityName, 0, 6) == "天气") 
         {
             $inputCityName = trim(substr($inputCityName, 6)); 
             $contentStr = getWeather($inputCityName);
         }         												/*  END WEATHER  */
-    
-        
         
         
         switch ($content)
