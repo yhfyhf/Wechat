@@ -47,8 +47,8 @@ class wechatCallbackapiTest
 							<MsgType><![CDATA[%s]]></MsgType>
 							<Content><![CDATA[%s]]></Content>
 							<FuncFlag>0</FuncFlag>
-							</xml>";             
-				if($keyword)
+							</xml>";
+                if($keyword)
                 {
                     $msgType = "text";
                     $contentStr = "";
@@ -70,15 +70,15 @@ class wechatCallbackapiTest
 	{
         $signature = $_GET["signature"];
         $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];	
-        		
-		$token = TOKEN;
+        $nonce = $_GET["nonce"];
+    
+        $token = TOKEN;
 		$tmpArr = array($token, $timestamp, $nonce);
 		sort($tmpArr);
 		$tmpStr = implode( $tmpArr );
 		$tmpStr = sha1( $tmpStr );
 		
-		if( $tmpStr == $signature ){
+        if( $tmpStr == $signature ){
 			return true;
 		}else{
 			return false;
