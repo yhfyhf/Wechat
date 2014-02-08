@@ -76,7 +76,7 @@ class wechat
         {
             $inputCityName = trim(substr($inputCityName, 6)); 
             $contentStr = getWeather($inputCityName);
-        }                                   /*  END WEATHER  */
+        }                                                   /*  END WEATHER  */
         
         
         switch ($content)
@@ -94,7 +94,9 @@ class wechat
 
             case "about":
             {
-                $contentStr = "    您好!我是飞哥,是一名大三学生.我兴趣广泛,热衷于web开发,熟悉Windows, Linux, Mac OS等各种系统的......安装,精通C/C++, python, javascript, php等语言的......拼写,掌握jQuery, Django, Nodejs等各种框架的......安装.\n    输入'contact'或'联系'获得我的联系方式.";
+                $contentStr  = "    您好!我是飞哥,是一名大三学生.我兴趣广泛,热衷于web开发,";
+                $contentStr.= "熟悉Windows, Linux, Mac OS等各种系统的......安装,精通C/C++, python, javascript, php等语言的......拼写,掌握jQuery, Django, Nodejs等各种框架的......安装.\n";
+                $contentStr.= "    输入'contact'或'联系'获得我的联系方式.";
                 break;
             }
             
@@ -115,7 +117,10 @@ class wechat
             
             case "partner":
             {
-                $contentStr = "公众平台刚刚建立,目前服务器搭建在新浪的云上.如果关注增多,会考虑升级服务器.目前有几点想法:\n    1.想找几位有php经验的朋友共同管理开发.因为我本人对前端开发更熟悉一些,所以能有熟悉后端的朋友帮助就再好不过了.\n    2.初来乍到,对微信公众平台的运作模式还不熟悉,想找一些朋友负责公众号的功能管理以及推广.\n    3.为了服务器的升级扩容,也为了激励我更好的管理公众号,欢迎各位给我sponsor,也可以请我一杯啤酒. http://me.alipay.com/hfying 我的支付宝账户为yhf406716870@gmail.com";
+                $contentStr  = "公众平台刚刚建立,目前服务器搭建在新浪的云上.如果关注增多,会考虑升级服务器.目前有几点想法:\n";
+                $contentStr.= "    1.想找几位有php经验的朋友共同管理开发.因为我本人对前端开发更熟悉一些,所以能有熟悉后端的朋友帮助就再好不过了.\n";
+                $contentStr.= "   2.初来乍到,对微信公众平台的运作模式还不熟悉,想找一些朋友负责公众号的功能管理以及推广.\n";
+                $contentStr.= "   3.为了服务器的升级扩容,也为了激励我更好的管理公众号,欢迎各位给我sponsor,也可以请我一杯啤酒. http://me.alipay.com/hfying 我的支付宝账户为yhf406716870@gmail.com";
                 $contentStr.= "\n\n我们希望通过这个平台,大家能自由的分享知识和见解;我们希望每个人都在做自己喜欢做的事情,相信没有事物是为了满足别人的需求而存在;我们希望信息能平等地流动,双手能让世界更有意义.";
                 break;
             }
