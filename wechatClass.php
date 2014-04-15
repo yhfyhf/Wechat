@@ -10,32 +10,44 @@
 //     public function text();//文本消息
 //     public function location();//地理位置消息
 //     public function event();//事件信息
-//     private function sendText($contentStr)//负责被动文本信息的发送，传入$contentStr即可返回给微信服务器，私有成员。
+//     private function sendText($contentStr)
 // }
 
-require_once "weather.php";     // 查询天气模块
+require_once "weather.php";
+require_once "mobile.php";
+
+
+function get_mobile_area($mobile){
+    $sms = array('province'=>'', 'supplier'=>'');    
+    $url = "http://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=".$mobile."&t=".time();  
+    
+    $content = file_get_contents($url);
+    //$sms = "省份: ".substr($content, "56", "6")."    运营商: ".substr($content, "81", "6");
+    $sms = utf8_encode($content);
+    return $sms;
+}
 
 $wechatTest = new wechat();
-$wechatTest->distribute(); // 入口函数distribute
+$wechatTest->distribute();//入口函数distribute
 
 class wechat
 {
-    private $postStr; // 传入的原始字符串
-    private $postObj; // 解析后
+    private $postStr;//传入的原始字符串
+    private $postObj;//解析后
 
-    function __construct() // 构造函数，从服务器里收到数据并解析
+    function __construct()//构造函数，从服务器里收到数据并解析
     {
-        $this->postStr = $GLOBALS["HTTP_RAW_POST_DATA"]; // 这里要根据环境自行配置
+        $this->postStr = $GLOBALS["HTTP_RAW_POST_DATA"];//这里要根据环境自行配置
         $this->postObj = simplexml_load_string($this->postStr, 'SimpleXMLElement', LIBXML_NOCDATA); 
     }
 
-    public function distribute() // 判断收到的信息是哪些，分发给处理函数
+    public function distribute()//判断收到的信息是哪些，分发给处理函数
     {
         if (!empty($this->postStr))
         {
             $msgType = $this->postObj->MsgType;
 
-            switch ($msgType) // 分发
+            switch ($msgType) //分发
             {
                 case "text":
                     $this->text();
@@ -52,16 +64,16 @@ class wechat
                     break;
             }
         }
-        else // 无法得到返回值
+        else//无法得到返回值
         {
             echo "无法得到返回值";
         }
 
     }
 
-    public function text() // 文本消息
+    public function text()//文本消息
     {
-        $content = trim($this->postObj->Content); // 去除用户发来信息的前后空格
+        $content = trim($this->postObj->Content);//去除用户发来信息的前后空格
         if($content == "帮助") $content = "help";
         if($content == "时间") $content = "time";
         if($content == "关于") $content = "about";
@@ -70,20 +82,25 @@ class wechat
         if($content == "天气") $content = "weather";
         if($content == "联系") $content = "contact";
         
-
+        
+        
+        
+        
         $inputCityName = $content;                              /*  WEATHER  */
         if(substr($inputCityName, 0, 6) == "天气") 
         {
             $inputCityName = trim(substr($inputCityName, 6)); 
             $contentStr = getWeather($inputCityName);
-        }                                                   /*  END WEATHER  */
+        }                                                       /*  END WEATHER  */
+    
+        
         
         
         switch ($content)
         {
             case "time":
             {
-                $contentStr = "哈哈,让飞哥告诉你,当前时间为: ".date("Y-m-d H:i:s",time())." 一寸光阴一寸金,请珍惜时间.";
+                $contentStr = "飞哥报时, 当前时间为: ".date("Y-m-d H:i:s",time())." 一寸光阴一寸金,请珍惜时间.";
                 break;
             }
             case "help":
@@ -94,9 +111,7 @@ class wechat
 
             case "about":
             {
-                $contentStr  = "    您好!我是飞哥,是一名大三学生.我兴趣广泛,热衷于web开发,";
-                $contentStr.= "熟悉Windows, Linux, Mac OS等各种系统的......安装,精通C/C++, python, javascript, php等语言的......拼写,掌握jQuery, Django, Nodejs等各种框架的......安装.\n";
-                $contentStr.= "    输入'contact'或'联系'获得我的联系方式.";
+                $contentStr = "    您好!我是飞哥,是一名大三学生.我兴趣广泛,热衷于web开发.\n    输入'contact'或'联系'获得我的联系方式.";
                 break;
             }
             
@@ -117,44 +132,54 @@ class wechat
             
             case "partner":
             {
-                $contentStr  = "公众平台刚刚建立,目前服务器搭建在新浪的云上.如果关注增多,会考虑升级服务器.目前有几点想法:\n";
-                $contentStr.= "   1.想找几位有php经验的朋友共同管理开发.因为我本人对前端开发更熟悉一些,所以能有熟悉后端的朋友帮助就再好不过了.\n";
-                $contentStr.= "   2.初来乍到,对微信公众平台的运作模式还不熟悉,想找一些朋友负责公众号的功能管理以及推广.\n";
-                $contentStr.= "   3.为了服务器的升级扩容,也为了激励我更好的管理公众号,欢迎各位给我sponsor,也可以请我一杯啤酒. http://me.alipay.com/hfying 我的支付宝账户为yhf406716870@gmail.com";
-                $contentStr.= "\n\n我们希望通过这个平台,大家能自由的分享知识和见解;我们希望每个人都在做自己喜欢做的事情,相信没有事物是为了满足别人的需求而存在;我们希望信息能平等地流动,双手能让世界更有意义.";
+                $contentStr = "1.有没有人熟悉php的，请联系我.\n    2.为了服务器的升级扩容,也为了激励我更好的管理公众号,欢迎各位给我sponsor,也可以请我一杯啤酒. http://me.alipay.com/hfying 我的支付宝账户为yhf406716870@gmail.com";
                 break;
             }
             
             case "contact":
             {
-                $contentStr = "如果您有任何建议或意见或好点子,请务必联系我!\n您可以直接回复消息给我,也可以发邮件给我:\n\nhfying@stu.xidian.edu.cn\n\nyhf406716870@gmail.com";
+                $contentStr = "如果您有任何建议或意见或好点子,您可以联系我!\n您可以直接回复消息给我,也可以发邮件给我:\n\nhfying@stu.xidian.edu.cn\n\nyhf406716870@gmail.com";
+                break;
+            }
+            case "news":
+            {
+                $this->sendNews();
+                break;
+            }
+            case "mobile":
+            {
+                $contentStr = get_mobile_area("15605791188");
+                break;
+            }
+            case "music":
+            {
+                $this->sendMusic();
                 break;
             }
             default:
                 break;
         }
-        $this->sendText($contentStr); // 发送信息
+        $this->sendText($contentStr);//发送信息
     }
 
-    public function location() // 地理位置消息
+    public function location()//地理位置消息
     {
 
     }
 
-    public function event() // 事件信息
-    // 包含“关注”“取消关注”“报告地理位置信息”等..
+    public function event()//事件信息
+    //包含“关注”“取消关注”“报告地理位置信息”等..
     {
-        if ($this->postObj->Event == "LOCATION") // 推送的地理位置信息
+        if ($this->postObj->Event == "LOCATION")//推送的地理位置信息
         {
+
             return ;
         }
 
-        if ($this->postObj->Event == "subscribe") // 关注公众号之后会执行以下代码
+        if ($this->postObj->Event == "subscribe")//关注公众号之后会执行以下代码
         {
             //示例，欢迎信息
             $contentStr = "您好！欢迎关注 <飞哥日报> 微信公众平台,我是飞哥.";
-            $contentStr.= " 在这里,我会推送一些小众,精品,有价值的内容,";
-            $contentStr.= " 尽可能保证分享干货给大家.";
             $contentStr.= " 请回复:\n\n     'help' 或 '帮助' \n\n获得使用教程.更多功能正在开发中.";
             $contentStr.= " 另外,我不是机器人!!!!!!!!!!!! 您可以直接发送消息给我! 也可以回复 'contact' 或 '联系' 获得我的联系方式.";
             $contentStr.= " 最后,感谢您的关注！";
@@ -162,20 +187,22 @@ class wechat
             $this->sendText($contentStr);
             return ;
         }
-        else if ($this->postObj->Event == "unsubscribe") // 取消关注
+        else if ($this->postObj->Event == "unsubscribe")//取消关注
+        //经测试，此处无法反馈任何信息，用户也收不到
         {
+            
             return ;
         }
-        else // 返回错误信息
+        else//返回错误信息
         {
             echo "未知的事件类型";
             return ;
         }
     }
 
-    private function sendText($contentStr) // 负责被动文本信息的发送，传入$contentStr即可返回给微信服务器，私有成员。
+    private function sendText($contentStr)//负责被动文本信息的发送，传入$contentStr即可返回给微信服务器，私有成员。
     {
-        // 不检查用户是否输入为空，如需检查请在text()中自行实现
+        //不检查用户是否输入为空，如需检查请在text()中自行实现
         $fromUsername = $this->postObj->FromUserName;
         $toUsername = $this->postObj->ToUserName;
         $time = time();
@@ -187,9 +214,69 @@ class wechat
                         <Content><![CDATA[%s]]></Content>
                         <FuncFlag>0</FuncFlag>
                     </xml>";
-        $msgType = "text"; // 返回的数据类型
-        $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr); // 格式化写入XML
-        echo $resultStr; // 发送
+        
+        $msgType = "text";//返回的数据类型
+        $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);//格式化写入XML
+        echo $resultStr;//发送
+        exit;
+    }
+    private function sendMusic()//负责被动文本信息的发送，传入$contentStr即可返回给微信服务器，私有成员。
+    {
+        //不检查用户是否输入为空，如需检查请在text()中自行实现
+        $fromUsername = $this->postObj->FromUserName;
+        $toUsername = $this->postObj->ToUserName;
+        $time = time();
+        $msgType = "music";//返回的数据类型
+        $musicTpl = "<xml>  
+                            <ToUserName><![CDATA[%s]]></ToUserName> 
+                            <FromUserName><![CDATA[%s]]></FromUserName>         
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[%s]]></MsgType>
+                            <Music>
+                            <Title><![CDATA[%s]]></Title>
+                            <Description><![CDATA[%s]]></Description>
+                            <MusicUrl><!CDATA[%s]]><MusicUrl>
+                            </Music>
+                            <FuncFlag>0</FuncFlag>
+                            </xml>";   
+        $resultStr = sprintf($musicTpl,
+                             $fromUsername,
+                             $toUsername, 
+                             $time, 
+                             $msgType, 
+                             "夕阳无限好", 
+                             "陈奕迅", 
+                             "http://sc.111ttt.com/up/mp3/103941/ADEB10A50E8EE4112279AA86D84AF3F9.mp3");//格式化写入XML
+        echo $resultStr;//发送
+        exit;
+    }
+    private function sendNews() {
+        //不检查用户是否输入为空，如需检查请在text()中自行实现
+        $fromUsername = $this->postObj->FromUserName;
+        $toUsername = $this->postObj->ToUserName;
+        $time = time();
+        //$msgType = "news";//返回的数据类型
+        $newsTpl = "<xml>
+                            <ToUserName><![CDATA[%s]]></ToUserName>
+                            <FromUserName><![CDATA[%s]]></FromUserName>
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[news]]></MsgType>
+                            <ArticleCount>1</ArticleCount>
+                            <Articles>
+                            <item>
+                            <Title><![CDATA[title]]></Title> 
+                            <Description><![CDATA[description1]]></Description>
+                            <PicUrl><![CDATA[http://yinghaofei.tk/images/conca.png]]></PicUrl>
+                            </item>
+                            </Articles>
+                            <FuncFlag>0</FuncFlag>
+                            </xml>" ;
+        $resultStr = sprintf($newsTpl,
+                             $fromUsername,
+                             $toUsername, 
+                             $time);//格式化写入XML
+        echo $resultStr;//发送
+        exit;
     }
 }
 ?>
